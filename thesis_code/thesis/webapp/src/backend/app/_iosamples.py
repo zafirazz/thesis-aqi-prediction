@@ -1,0 +1,1 @@
+SAMPLE_INPUT = {"model_name": "DART"}
