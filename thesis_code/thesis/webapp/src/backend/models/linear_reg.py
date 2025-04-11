@@ -12,16 +12,16 @@ from thesis_code.thesis.webapp.src.backend.models._features import FEATURES
 
 
 class LinRegModel:
-    def __init__(self):
+    def __init__(self, modelin, scalerin):
         self.df = DataLoader().get_data()
-        self.model = LinearRegression()
-        self.scaler = StandardScaler()
+        self.model = modelin
+        self.scaler = scalerin
         self.X_train, self.X_test, self.y_train, self.y_test = None, None, None, None
-        self.features = FEATURES
+        #self.features = FEATURES
         self.target = "Station2_PM10"
 
     def preprocess_data(self):
-        X = self.df[self.features]
+        X = self.df[FEATURES]
         y = self.df[self.target]
         X_scaled = self.scaler.fit_transform(X)
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(X_scaled, y, test_size=0.2,
@@ -37,5 +37,5 @@ class LinRegModel:
         mae = mean_absolute_error(self.y_test, y_pred)
         r2 = r2_score(self.y_test, y_pred)
         mse = mean_squared_error(self.y_test, y_pred)
-        result = {"result": y_pred.tolist(), "mae": float(mae), "r2": float(r2), "mse": float(mse)}
+        result = {"test": self.y_test.tolist(), "pred": y_pred.tolist(), "mae": float(mae), "r2": float(r2), "mse": float(mse)}
         return result
