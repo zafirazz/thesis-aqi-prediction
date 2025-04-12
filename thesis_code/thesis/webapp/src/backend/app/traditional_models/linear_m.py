@@ -16,7 +16,7 @@ class LinearRegress(Resource):
         return jsonify({"SAMPLE_INPUT_FOR_POST_REQUEST": SAMPLE_INPUT})
 
     def post(self):
-        prediction = LinRegModel(LinearRegression(), StandardScaler()).get_forecast()
+        prediction = LinRegModel(LinearRegression()).get_forecast()
         return jsonify({
             "status": "success",
             "data": prediction

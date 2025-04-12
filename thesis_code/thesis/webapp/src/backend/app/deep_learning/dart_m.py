@@ -11,12 +11,11 @@ logger = logging.getLogger(__name__)
 
 class DartModel(Resource):
     def get(self):
-        return jsonify({"SAMPLE_INPUT_FOR_DART": SAMPLE_INPUT})
+        return jsonify({"SAMPLE_INPUT_FOR_POST_REQUEST": SAMPLE_INPUT})
 
     def post(self):
-        payload = request.get_json(silent=True)
-        if not payload:
-            return APPApiResponse.fail(400, data="You did not provide a model name.")
-        name = payload.get("model_name")
-        prediction = Dart().get_forecast(name)
-        return APPApiResponse.success(data=prediction)
+        prediction = Dart().get_forecast()
+        return jsonify({
+            "status": "success",
+            "data": prediction
+        })

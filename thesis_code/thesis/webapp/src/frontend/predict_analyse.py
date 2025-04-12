@@ -19,9 +19,20 @@ def forecast_linreg(model):
                 return
     plot_pred()
 
-def forecast_lstm_v1():
+def forecast_lstm(model_name):
     with st.spinner("Training model and preparing analysis..."):
-        resp = requests.post(BASE_URL + '/api/model/lstm')
+        if model_name == "LSTM (4 layers)":
+            api_endpoint = '/api/model/lstm'
+        elif model_name == "LSTM (2 layers)":
+            api_endpoint = '/api/model/lstm_reduced'
+        elif model_name == "GRU":
+            api_endpoint = '/api/model/gru'
+        elif model_name == "GBDT":
+            api_endpoint = '/api/model/gbdt'
+        elif model_name == "DART":
+            api_endpoint = '/api/model/dart'
+
+        resp = requests.post(BASE_URL + api_endpoint)
         st.session_state["prediction"] = resp.json()["data"]
         if resp.status_code == 200:
             st.success("Results are ready!")
@@ -31,8 +42,8 @@ def forecast_lstm_v1():
     plot_pred()
 
 def plot_pred():
-    y_pred = st.session_state["prediction"]["pred"][:365]
-    y_test = st.session_state["prediction"]["test"][:365]
+    y_pred = st.session_state["prediction"]["pred"][:200]
+    y_test = st.session_state["prediction"]["test"][:200]
     mae = st.session_state["prediction"]["mae"]
     mse = st.session_state["prediction"]["mse"]
     r2 = st.session_state["prediction"]["r2"]
@@ -43,13 +54,14 @@ def plot_pred():
     cols = st.columns(2)
 
     df = pd.DataFrame(df_plot)
+
     df = df.reset_index().rename(columns={'index': 'Test Sample Index'})
 
     with cols[0]:
         st.line_chart(
             df,
             x='Test Sample Index',
-            y=['PM10_prediction', 'PM10_actual']  
+            y=['PM10_prediction', 'PM10_actual']
         )
 
     with cols[1]:
@@ -77,6 +89,6 @@ def main():
     if st.session_state["model_name"] == "Linear Regression":
         if st.button("Predict PM10"):
             forecast_linreg(st.session_state["model_name"])
-    elif st.session_state["model_name"] == "LSTM (4 layers)":
+    elif st.session_state["model_name"] != "":
         if st.button("Predict PM10"):
-            forecast_lstm_v1()
+            forecast_lstm(st.session_state["model_name"])
