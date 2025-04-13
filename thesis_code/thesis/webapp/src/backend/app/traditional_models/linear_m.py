@@ -11,11 +11,14 @@ from thesis_code.thesis.webapp.src.backend.models.linear_reg import LinRegModel
 logger = logging.getLogger(__name__)
 
 class LinearRegress(Resource):
+    """API for Linear Regression model"""
 
     def get(self):
+        """GET method of API"""
         return jsonify({"SAMPLE_INPUT_FOR_POST_REQUEST": SAMPLE_INPUT})
 
     def post(self):
+        """POST method of API"""
         prediction = LinRegModel(LinearRegression()).get_forecast()
         return jsonify({
             "status": "success",

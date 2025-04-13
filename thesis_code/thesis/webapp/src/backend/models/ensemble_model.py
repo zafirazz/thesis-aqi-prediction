@@ -15,6 +15,8 @@ from backend.models.lstm_v2 import LstmTwo
 
 
 class Ensemble:
+    """Class for Ensemble Model"""
+
     def __init__(self):
         self.features = EN_FEATURES
         self.target = "Station2_PM10"
@@ -31,6 +33,16 @@ class Ensemble:
         }
 
     def get_meta_features(self, X_tree, X_seq, models):
+        """
+        Generate meta-features for the ensemble model from base model predictions.
+
+        :param X_tree: Input feature data for tree-based models (scaled)
+        :param X_seq: Input sequence data for sequential models
+        :param models: Base models for ensemble
+        :return: meta_X : Stacked meta-feature matrix combining predictions from all base models.
+        min_len : The minimum sequence length across all base model predictions,
+        used for alignment of sequences.
+        """
         tree_preds = {
             'gbdt': models['gbdt'].get_forecast(X_tree)["pred"],
             'dart': models['dart'].get_forecast(X_tree)["pred"],
@@ -55,6 +67,9 @@ class Ensemble:
         return meta_X, min_len
 
     def train_model(self):
+        """
+        Trains base models of meta-model and prepares meta-features.
+        """
         time_steps = 30
         res = self.split_data.preprocess_data()
 
@@ -69,7 +84,6 @@ class Ensemble:
         for name, model in self.base_models.items():
             model.train_model()
 
-        # Prepare meta features
         meta_X_train, min_len_train = self.get_meta_features(
             X_train_scaled[time_steps:], X_train_seq, self.base_models
         )
@@ -80,7 +94,6 @@ class Ensemble:
         )
         meta_y_test = y_test[-min_len_test:]
 
-        # For later use in prediction
         self.meta_X_train = meta_X_train
         self.meta_y_train = meta_y_train
         self.meta_X_test = meta_X_test
@@ -90,6 +103,11 @@ class Ensemble:
         print(f"Meta-features test shape: {meta_X_test.shape}")
 
     def ensemble_create(self):
+        """
+        Defines Ensemble meta-model architecture.
+
+        :return: Compiled meta-model
+        """
         input_dim = self.meta_X_train.shape[1]
 
         meta_model = Sequential([
@@ -105,13 +123,15 @@ class Ensemble:
         return meta_model
 
     def get_forecast(self):
-        # Prepare data
+        """
+        Trains final model
+
+        :return: dictionary with predictions, test values and accuracy metrics result
+        """
         self.train_model()
 
-        # Early stopping
         early_stop = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
 
-        # Create and train meta-model
         meta_model = self.ensemble_create()
 
         print("Training meta-model...")
@@ -124,10 +144,8 @@ class Ensemble:
             verbose=1
         )
 
-        # Predict
         ensemble_pred = meta_model.predict(self.meta_X_test).flatten()
 
-        # Evaluate
         mae = mean_absolute_error(self.meta_y_test, ensemble_pred)
         mse = mean_squared_error(self.meta_y_test, ensemble_pred)
         r2 = r2_score(self.meta_y_test, ensemble_pred)

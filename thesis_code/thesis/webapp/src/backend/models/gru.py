@@ -16,6 +16,8 @@ from backend.models.lstm_v2 import LstmTwo
 
 
 class Gru:
+    """Class for GRU model"""
+
     def __init__(self):
         model_path = "/Users/zafiraibraeva/Code/uni coding/thesis/thesis_code/thesis/webapp/ml_model/gru_model.keras"
         self.model = ModelUnpack(model_path).get_model()
@@ -33,9 +35,18 @@ class Gru:
 
 
     def prepare_data(self):
+        """
+        Returns preprocessed data.
+        """
         return self.base_model.preprocess_data()
 
     def train_model(self):
+        """
+        Function to predict test data.
+
+        :param to_predict: optional array for external use for ensemble model
+        :return: list with predicted PM10 values
+        """
         res = self.prepare_data()
         X_train_seq = res['x_train_seq']
         y_train_seq = res['y_train_seq']
@@ -53,6 +64,12 @@ class Gru:
         )
 
     def get_forecast(self, to_predict: Optional[np.ndarray] = None):
+        """
+        Function to prepare output for API.
+
+        :param to_predict: array flagging for external use for ensemble model
+        :return: dictionary with test, predictions and stats numbers (if for Ensemble model just prediction)
+        """
         res = self.prepare_data()
         X_test_seq = res['x_test_seq']
         y_test_seq = res['y_test_seq']

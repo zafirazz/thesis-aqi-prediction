@@ -8,6 +8,8 @@ from backend.app.model_unpacking import ModelUnpack
 from backend.models.linear_reg import LinRegModel
 
 class LstmOne(LinRegModel):
+    """Class for LSTM with 4 layers"""
+
     def __init__(self):
         model_path = "/Users/zafiraibraeva/Code/uni coding/thesis/thesis_code/thesis/webapp/ml_model/lstm_model_v1.keras"
         model = ModelUnpack(model_path).get_model()
@@ -21,6 +23,14 @@ class LstmOne(LinRegModel):
         super().__init__(model)
 
     def create_sequences(self, data, target_index, seq_length):
+        """
+        Function to create sequences with input data and target.
+
+        :param data: DataFrame with historical dataset
+        :param target_index: PM10 target value for prediction
+        :param seq_length: Length of sequence
+        :return: two arrays with input data and target values.
+        """
         X, y = [], []
         for i in range(len(data) - seq_length):
             X.append(data[i:i + seq_length])
@@ -28,6 +38,11 @@ class LstmOne(LinRegModel):
         return np.array(X), np.array(y)
 
     def preprocess_data(self):
+        """
+        Functions that scales data and creates sequences.
+
+        :return: none
+        """
         data = self.df[self.features + [self.target]]
         df_scaled = self.scaler.fit_transform(data)
         X, y = self.create_sequences(df_scaled, target_index=len(self.features), seq_length=72)
@@ -37,6 +52,12 @@ class LstmOne(LinRegModel):
         self.y_train, self.y_test = y[:split_idx], y[split_idx:]
 
     def inverse_transform_target(self, scaled_target):
+        """
+        Inverses scaled data into normal form.
+
+        :param scaled_target: scaled PM10 values
+        :return: inversed data
+        """
         full_scaled = np.zeros((scaled_target.shape[0], len(self.features) + 1))  # +1 for target
 
         target_index = len(self.features)
@@ -47,6 +68,11 @@ class LstmOne(LinRegModel):
         return inversed[:, target_index]
 
     def get_forecast(self) -> Dict[str, float]:
+        """
+        Prepares data for API post response.
+
+        :return: dictionary with predicted, actual values and accuracy metrics
+        """
         self.preprocess_data()
 
         predictions = self.model.predict(self.X_test)

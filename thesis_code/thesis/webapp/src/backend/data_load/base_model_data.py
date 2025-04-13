@@ -19,6 +19,7 @@ EN_FEATURES = [
 
 
 class BaseModelEnsemble:
+    """Class for splitting data into training and testing."""
     def __init__(self):
         self.df = DataLoader().get_data()
         self.scaler = StandardScaler()
@@ -27,6 +28,15 @@ class BaseModelEnsemble:
         self.features = EN_FEATURES
 
     def create_sequences(self, data, targets, time_steps=30):
+        """
+        Function generates sequences of features and corresponding target values for time series modeling.
+
+        :param data: DataFrame with historical data
+        :param targets: target variable (PM10)
+        :param time_steps: The number of time steps to include in each sequence (look-back window size).
+        :return: two numpy arrays containing input sequence and target values
+        """
+
         X_seq, y_seq = [], []
         for i in range(time_steps, len(data)):
             X_seq.append(data[i - time_steps:i, :])
@@ -34,6 +44,12 @@ class BaseModelEnsemble:
         return np.array(X_seq), np.array(y_seq)
 
     def create_test_train(self, to_predict: Optional[np.ndarray] = None) -> Dict[str, np.ndarray]:
+        """
+        Splits data into testing and training for model.
+
+        :param to_predict: Optional value flagging whether function was called from Ensemble class
+        :return: dictionary containing train and test scaled data
+        """
         X = self.df[self.features].values
         y = self.df[self.target].values
 
@@ -53,6 +69,12 @@ class BaseModelEnsemble:
         }
 
     def preprocess_data(self, to_predict: Optional[np.ndarray] = None) -> Dict[str, np.ndarray]:
+        """
+        Function prepares the input data for time series modeling.
+
+        :param to_predict: Optional array for external prediction use
+        :return: dictionary containing all train and test scaled data along with input sequence and target values
+        """
         time_steps = 30
 
         data_splits = self.create_test_train()

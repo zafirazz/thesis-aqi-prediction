@@ -15,6 +15,11 @@ from backend.models.linear_reg import LinRegModel
 
 
 def create_model():
+    """
+    Creates GBDT model architecture
+
+    :return: model
+    """
     gbdt = GradientBoostingRegressor(
         n_estimators=300,
         max_depth=6,
@@ -28,6 +33,8 @@ def create_model():
 
 
 class Gbdt:
+    """Class for GBDT"""
+
     def __init__(self):
         self.model = create_model()
         self.features = EN_FEATURES
@@ -37,9 +44,18 @@ class Gbdt:
         self.X_train, self.X_test, self.y_train, self.y_test = None, None, None, None
 
     def prepare_data(self):
+        """
+        Returns preprocessed data.
+        """
         return self.base_model.preprocess_data()
 
     def train_model(self, to_predict: Optional[np.ndarray] = None):
+        """
+        Function to predict test data.
+
+        :param to_predict: optional array for external use for ensemble model
+        :return: list with predicted PM10 values
+        """
         if to_predict is None:
             res = self.base_model.create_test_train()
         else:
@@ -54,6 +70,12 @@ class Gbdt:
         return prediction
 
     def get_forecast(self, to_predict: Optional[np.ndarray] = None) -> Dict[str, float]:
+        """
+        Function to prepare output for API.
+
+        :param to_predict: array flagging for external use for ensemble model
+        :return: dictionary with test, predictions and stats numbers (if for Ensemble model just prediction)
+        """
         data = self.prepare_data()
         y_test_seq = data['y_test']
 
