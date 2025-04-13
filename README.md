@@ -22,8 +22,64 @@ The pipeline includes:
 ---
 
 ## Project Structure
-<pre> \``` src/ │ ├── backend/ # Core backend code (data, models, utilities) │ │ │ ├── app/ # Application utilities │ │ └── model_unpacking.py # Utility for loading saved models │ │ │ ├── data_load/ # Data loading and preprocessing │ │ ├── base_model_data.py # Base preprocessing for models │ │ ├── data_handle.py # Data handler utilities │ │ └── _features.py # Feature definitions │ │ │ ├── models/ # Machine learning models │ │ ├── ensemble_model.py # Ensemble model (meta-learner) │ │ ├── gbdt.py # Gradient Boosting model │ │ ├── dart.py # DART boosting model │ │ ├── lightgbm.py # LightGBM model │ │ ├── lstm_v2.py # LSTM sequence model │ │ └── gru.py # GRU sequence model │ │ │ └── utils/ # (Optional) Utility functions │ └── logger.py # Logging utilities (future improvement) │ ├── ml_model/ # Saved trained models │ ├── lstm_model_v2.keras # Saved LSTM model │ └── ensemble_model.keras # Saved ensemble model │ ├── notebooks/ # Jupyter Notebooks for experiments │ └── ensemble_model_final.ipynb # Final ensemble training notebook │ ├── webapp/ # API layer (Flask app) │ └── src/ # Flask source code │ └── backend/app/ # Flask endpoints for model inference │ ├── requirements.txt # Project dependencies ├── README.md # Project documentation └── .gitignore # Files to ignore in version control
- \``` </pre>
+
+<img width="209" alt="Screenshot 2025-04-13 at 19 08 27" src="https://github.com/user-attachments/assets/648e31ae-8594-4af7-af23-d802a9fa0e32" />
+
+## How to run:
+
+Follow these steps to set up and run the web application:
+
+1. Clone the repository
+```   
+git clone https://github.com/yourusername/air-quality-ensemble.git
+cd webapp/src/backend
+```
+3. Create and activate a virtual environment.
+
+For macOS / Linux:
+```
+python3 -m venv venv
+source venv/bin/activate
+```
+
+For Windows:
+```
+python -m venv venv
+venv\Scripts\activate
+```
+
+3. Install dependencies
+With the virtual environment activated, install the required Python packages:
+```
+pip install -r requirements.txt
+pip install -e .
+```
+
+4. Run the backend Flask API
+Navigate to the backend application folder and start the Flask server:
+```
+cd backend
+python app.py
+```
+The Flask API will start locally at:
+```
+http://127.0.0.1:5000/
+```
+You can use tools like Postman or cURL to interact with the API endpoints.
+
+5. Run the Streamlit dashboard (frontend)
+In a new terminal window (keep the Flask server running), start the Streamlit application in the frontend directory:
+```
+streamlit run main.py
+```
+The Streamlit app will open in your browser, typically at:
+```
+http://localhost:8501/
+```
+Here, you can interact with the application UI to trigger model training, view predictions, and visualize results.
+
+
+
 
 
 
