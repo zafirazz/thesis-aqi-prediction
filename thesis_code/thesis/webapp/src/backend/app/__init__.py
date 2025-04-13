@@ -3,7 +3,9 @@ import logging
 from flask import Flask
 from flask_restful import Api
 
+from backend.app.deep_learning.ensemble_m import EnsembleModel
 from backend.app.deep_learning.gru_m import GruModel
+from backend.app.deep_learning.lightgbm_m import LightGbmModel
 from backend.app.deep_learning.lstm_v1_m import LstmModel
 from backend.app.deep_learning.lstm_v2_m import LstmModel_reduced
 from backend.app.download import DownloadReport
@@ -22,10 +24,10 @@ api.add_resource(LinearRegress, "/api/model/linear_regression")
 api.add_resource(LstmModel, "/api/model/lstm")
 api.add_resource(GbdtModel, "/api/model/gbdt")
 api.add_resource(DartModel, "/api/model/dart")
-# api.add_resource(LightGbmModel, "/api/model/light_gbm")
+api.add_resource(LightGbmModel, "/api/model/lgbm")
 api.add_resource(LstmModel_reduced, "/api/model/lstm_reduced")
 api.add_resource(GruModel, "/api/model/gru")
-# api.add_resource(EnsembleModel, "/api/model/ensemble")
+api.add_resource(EnsembleModel, "/api/model/ensemble")
 api.add_resource(DownloadReport, "/api/download_report")
 
 @app.route("/api/check")

@@ -1,9 +1,13 @@
 from typing import Dict
 
+import numpy as np
 from lightgbm import LGBMRegressor
+from typing import Optional
+
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 from backend.data_load.base_model_data import EN_FEATURES, BaseModelEnsemble
+from backend.models.gbdt import Gbdt
 from backend.models.linear_reg import LinRegModel
 
 
@@ -19,37 +23,53 @@ def create_dart():
         random_state=42,
         verbose=-1
     )
+    return dart
 
-class Dart(LinRegModel):
+class Dart(Gbdt):
     def __init__(self):
-        self.features = EN_FEATURES
-        model = create_dart()
+        super().__init__()
+        self.model = create_dart()
         self.base_model = BaseModelEnsemble()
-        super().__init__(model)
 
+    def prepare_data(self):
+        return self.base_model.preprocess_data()
 
-    def train_model(self):
-        res = self.base_model.create_test_train()
+    def train_model(self, to_predict: Optional[np.ndarray] = None):
+        if to_predict is None:
+            res = self.base_model.create_test_train()
+        else:
+            res = self.base_model.create_test_train(to_predict)
+        X_train_scaled = res['X train scaled']
         X_test_scaled = res['X test scaled']
-        self.y_train = res['y train scaled']
-        self.model.fit(X_test_scaled, self.y_train)
+        self.y_train = res['y train']
+
+        self.model.fit(X_train_scaled, self.y_train)
+
         prediction = self.model.predict(X_test_scaled).flatten()
         return prediction
 
-    def get_forecast(self) -> Dict[str, float]:
-        res = self.base_model.preprocess_data()
-        y_test_seq = res['y_test_seq']
-        predictions = self.train_model()
+    def get_forecast(self, to_predict: Optional[np.ndarray] = None) -> Dict[str, float]:
+        data = self.prepare_data()
+        y_test_seq = data['y_test']
 
-        mse = mean_squared_error(y_test_seq, predictions)
-        mae = mean_absolute_error(y_test_seq, predictions)
-        r2 = r2_score(y_test_seq, predictions)
+        if to_predict is None:
+            predictions = self.train_model()
+            mse = mean_squared_error(y_test_seq, predictions)
+            mae = mean_absolute_error(y_test_seq, predictions)
+            r2 = r2_score(y_test_seq, predictions)
 
-        result = {
-            "test": y_test_seq.tolist(),
-            "pred": predictions.tolist(),
-            "mae": float(mae),
-            "r2": float(r2),
-            "mse": float(mse)
-        }
+            result = {
+                "test": y_test_seq.tolist(),
+                "pred": predictions.tolist(),
+                "mae": float(mae),
+                "r2": float(r2),
+                "mse": float(mse)
+            }
+        else:
+            predictions = self.model.predict(to_predict).flatten()
+
+            result = {
+                "pred": predictions.tolist()
+            }
+
         return result

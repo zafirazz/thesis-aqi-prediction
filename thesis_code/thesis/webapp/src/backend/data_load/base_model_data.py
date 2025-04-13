@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -33,14 +33,17 @@ class BaseModelEnsemble:
             y_seq.append(targets[i])
         return np.array(X_seq), np.array(y_seq)
 
-    def create_test_train(self) -> Dict[str, np.ndarray]:
+    def create_test_train(self, to_predict: Optional[np.ndarray] = None) -> Dict[str, np.ndarray]:
         X = self.df[self.features].values
         y = self.df[self.target].values
 
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
             X, y, test_size=0.2, random_state=42, shuffle=False)
 
-        X_train_scaled = self.scaler.fit_transform(self.X_train)
+        if to_predict is None:
+            X_train_scaled = self.scaler.fit_transform(self.X_train)
+        else:
+            X_train_scaled = self.scaler.fit_transform(to_predict)
         X_test_scaled = self.scaler.transform(self.X_test)
 
         return {
@@ -49,7 +52,7 @@ class BaseModelEnsemble:
             "y train": self.y_train,
         }
 
-    def preprocess_data(self):
+    def preprocess_data(self, to_predict: Optional[np.ndarray] = None) -> Dict[str, np.ndarray]:
         time_steps = 30
 
         data_splits = self.create_test_train()
@@ -64,7 +67,10 @@ class BaseModelEnsemble:
             "x_test_seq": self.X_test_seq,
             "y_train_seq": self.y_train_seq,
             "y_test_seq": self.y_test_seq,
-            "y_test": self.y_test
+            "y_test": self.y_test,
+            "x_train_scaled": X_train_scaled,
+            "x_test_scaled": X_test_scaled,
+            "y_train": self.y_train
         }
 
 if __name__ == '__main__':

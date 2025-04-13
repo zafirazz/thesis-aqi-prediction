@@ -21,16 +21,17 @@ def forecast_linreg(model):
 
 def forecast_lstm(model_name):
     with st.spinner("Training model and preparing analysis..."):
-        if model_name == "LSTM (4 layers)":
-            api_endpoint = '/api/model/lstm'
-        elif model_name == "LSTM (2 layers)":
-            api_endpoint = '/api/model/lstm_reduced'
-        elif model_name == "GRU":
-            api_endpoint = '/api/model/gru'
-        elif model_name == "GBDT":
-            api_endpoint = '/api/model/gbdt'
-        elif model_name == "DART":
-            api_endpoint = '/api/model/dart'
+        model_api_map = {
+            "LSTM (4 layers)": "/api/model/lstm",
+            "LSTM (2 layers)": "/api/model/lstm_reduced",
+            "GRU": "/api/model/gru",
+            "GBDT": "/api/model/gbdt",
+            "DART": "/api/model/dart",
+            "LightGBM": "/api/model/lgbm",
+            "Ensemble model": "/api/model/ensemble",
+        }
+
+        api_endpoint = model_api_map.get(model_name)
 
         resp = requests.post(BASE_URL + api_endpoint)
         st.session_state["prediction"] = resp.json()["data"]

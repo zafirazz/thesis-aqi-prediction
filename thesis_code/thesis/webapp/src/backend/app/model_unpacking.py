@@ -9,4 +9,4 @@ class ModelUnpack:
 
     def get_model(self):
         if self.extension in ['.keras', '.h5']:
-            return load_model(self.model_path, compile=False)
+            return load_model(self.model_path)
