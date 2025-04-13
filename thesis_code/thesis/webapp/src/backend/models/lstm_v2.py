@@ -12,6 +12,8 @@ from backend.data_load.data_handle import DataLoader
 
 
 class LstmTwo:
+    """Class for LSTM model with reduced layers"""
+
     def __init__(self):
         model_path = "/Users/zafiraibraeva/Code/uni coding/thesis/thesis_code/thesis/webapp/ml_model/lstm_model_v2.keras"
         self.model = ModelUnpack(model_path).get_model()
@@ -24,9 +26,19 @@ class LstmTwo:
         self.X_train, self.X_test, self.y_train, self.y_test = None, None, None, None
 
     def prepare_data(self):
+        """
+        Preprocess data.
+
+        :return: preprocessed and scaled data
+        """
         return self.base_model.preprocess_data()
 
     def train_model(self):
+        """
+        Trains model.
+
+        :return: none
+        """
         res = self.prepare_data()
         X_train_seq = res['x_train_seq']
         y_train_seq = res['y_train_seq']
@@ -45,6 +57,12 @@ class LstmTwo:
         )
 
     def get_forecast(self, to_predict: Optional[np.ndarray] = None) -> Dict[str, float]:
+        """
+        Prepares data for API post response.
+
+        :param to_predict: array flag for Ensemble model call.
+        :return: dictionary with predicted, actual values and accuracy metrics.
+        """
         res = self.prepare_data()
         X_test_seq = res['x_test_seq']
         y_test_seq = res['y_test_seq']

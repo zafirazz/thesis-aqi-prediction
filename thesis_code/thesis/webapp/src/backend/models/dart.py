@@ -12,6 +12,11 @@ from backend.models.linear_reg import LinRegModel
 
 
 def create_dart():
+    """
+    Creates DART model architecture.
+
+    :return: DART model
+    """
     dart = LGBMRegressor(
         boosting_type='dart',
         n_estimators=300,
@@ -26,15 +31,26 @@ def create_dart():
     return dart
 
 class Dart(Gbdt):
+    """Class for DART model."""
+
     def __init__(self):
         super().__init__()
         self.model = create_dart()
         self.base_model = BaseModelEnsemble()
 
     def prepare_data(self):
+        """
+        :return: preprocessed data's dictionary with train and test scaled data.
+        """
         return self.base_model.preprocess_data()
 
     def train_model(self, to_predict: Optional[np.ndarray] = None):
+        """
+        Function to predict test data.
+
+        :param to_predict: optional array for external use for ensemble model
+        :return: list with predicted PM10 values
+        """
         if to_predict is None:
             res = self.base_model.create_test_train()
         else:
@@ -49,6 +65,12 @@ class Dart(Gbdt):
         return prediction
 
     def get_forecast(self, to_predict: Optional[np.ndarray] = None) -> Dict[str, float]:
+        """
+        Function to prepare output for API.
+
+        :param to_predict: array flagging for external use for ensemble model
+        :return: dictionary with test, predictions and stats numbers (if for Ensemble model just prediction)
+        """
         data = self.prepare_data()
         y_test_seq = data['y_test']
 

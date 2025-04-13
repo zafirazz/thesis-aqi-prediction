@@ -12,27 +12,44 @@ from thesis_code.thesis.webapp.src.backend.models._features import FEATURES
 
 
 class LinRegModel:
+    """Class for Linear Regression model."""
+
     def __init__(self, modelin):
         self.df = DataLoader().get_data()
         self.model = modelin
         self.scaler = StandardScaler()
         self.X_train, self.X_test, self.y_train, self.y_test = None, None, None, None
-        #self.features = FEATURES
+        self.features = FEATURES
         self.target = "Station2_PM10"
 
     def preprocess_data(self):
+        """
+        Splits data into training and test sets and scales data.
+
+        :return: none
+        """
         X = self.df[FEATURES]
         y = self.df[self.target]
         X_scaled = self.scaler.fit_transform(X)
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(X_scaled, y, test_size=0.2,
                                                                                 random_state=42)
     def train_model(self):
+        """
+        Predicts PM10 values of test data.
+
+        :return: predicted PM10 values.
+        """
         self.preprocess_data()
         self.model.fit(self.X_train, self.y_train)
         y_pred = self.model.predict(self.X_test)
         return y_pred
 
     def get_forecast(self) -> Dict[str, float]:
+        """
+        Collects result data for API POST response.
+
+        :return: dictionary with predicted values, test and accuracy metrics values.
+        """
         y_pred = self.train_model()
         mae = mean_absolute_error(self.y_test, y_pred)
         r2 = r2_score(self.y_test, y_pred)
