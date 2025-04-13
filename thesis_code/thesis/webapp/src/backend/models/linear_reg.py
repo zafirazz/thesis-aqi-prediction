@@ -12,10 +12,10 @@ from thesis_code.thesis.webapp.src.backend.models._features import FEATURES
 
 
 class LinRegModel:
-    def __init__(self, modelin, scalerin):
+    def __init__(self, modelin):
         self.df = DataLoader().get_data()
         self.model = modelin
-        self.scaler = scalerin
+        self.scaler = StandardScaler()
         self.X_train, self.X_test, self.y_train, self.y_test = None, None, None, None
         #self.features = FEATURES
         self.target = "Station2_PM10"

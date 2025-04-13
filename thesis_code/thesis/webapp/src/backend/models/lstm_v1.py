@@ -11,7 +11,6 @@ class LstmOne(LinRegModel):
     def __init__(self):
         model_path = "/Users/zafiraibraeva/Code/uni coding/thesis/thesis_code/thesis/webapp/ml_model/lstm_model_v1.keras"
         model = ModelUnpack(model_path).get_model()
-        scaler = StandardScaler()
         self.seq_length = 72
         self.features =  [
             "temp", "humidity", "precip",
@@ -19,7 +18,7 @@ class LstmOne(LinRegModel):
             "winddir_sin", "winddir_cos", "is_heating_season", "is_work_day",
             "year", "month", "day"
         ]
-        super().__init__(model, scaler)
+        super().__init__(model)
 
     def create_sequences(self, data, target_index, seq_length):
         X, y = [], []
